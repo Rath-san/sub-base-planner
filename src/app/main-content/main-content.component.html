@@ -1,0 +1,32 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-8">
+      <app-filters></app-filters>
+      <div class="results">
+        <app-item *ngFor="let i of items" [item]="i" [simple]="true" (emitItem)="addToBar($event)"></app-item>
+      </div>
+    </div>
+    
+    <div class="col-sm-4">
+      <app-materials-bar [materials]="materialsInBom"></app-materials-bar>
+    </div>
+
+  </div>
+
+  <div class="row">
+
+    <div class="col-sm-12">
+      <div class="item-holder">
+        <app-item *ngFor="let i of itemsInBar; let in = index" [item]="i" [index]="in" [simple]="false" (emitItem)="removeFromBar($event)"></app-item>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+  <!-- {{ data }}
+
+<img src="http://subnautica.wikia.com/wiki/Special:FilePath/Blue Palm Seed.png" alt=""> -->
