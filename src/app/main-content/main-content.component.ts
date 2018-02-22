@@ -98,6 +98,7 @@ export class MainContentComponent implements OnInit {
   removeFromBar(i) {
     const index = this.itemsInBar.indexOf(i);
     this.itemsInBar.splice(index, 1);
+    this.removeMaterial(i);
   }
 
   // create new material
@@ -116,6 +117,30 @@ export class MainContentComponent implements OnInit {
       }
 
     });
+   }
+
+   removeMaterial(i: Item) {
+     i.getMaterialsRaw().forEach((v: Material) => {
+       const r = this.materialsInBom.raw.find(element => v.name === element.name);
+       if (r) {
+         // subtract from material count
+         r.count -= v.count;
+         if (r.count === 0) {
+           console.log();
+           const index = this.materialsInBom.raw.indexOf(r);
+           this.materialsInBom.raw.splice(index, 1);
+          //  this.materialsInBom.raw.map(e => {
+          //    console.log(e);
+          //   }).indexOf(r);
+          //  splice(index, 1);
+         }
+       }
+      //  else {
+      //    // add new material
+      //    const m = new Material(v.name, v.url, v.count);
+      //    this.materialsInBom.raw.push(m);
+      //  }
+     })
    }
 
    findSimilar(array: object[], prop, item: Object) {
