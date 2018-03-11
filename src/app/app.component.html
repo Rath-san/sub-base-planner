@@ -1,1 +1,106 @@
 <app-base></app-base>
+<section>
+
+  <ul>
+    <li *ngFor="let mat of materialsInBom; let i=index">
+      <div class="img-holder">
+        <img [src]="mat.getImage()" alt="" (load)="mat.loaded = true">
+        <app-spinner-loader [hidden]="mat.loaded"></app-spinner-loader>
+        {{mat.count}}
+
+      </div>
+    </li>
+  </ul>
+
+  <ul>
+    <li *ngFor="let item of selectedItems; let i=index">
+      <div class="img-holder">
+        <img [src]="item.getImage()" alt="" (load)="item.loaded = true" (click)="removeFromSelected(i)">
+        <app-spinner-loader [hidden]="item.loaded"></app-spinner-loader>
+        {{item.count}}
+      </div>
+    </li>
+  </ul>
+
+  <ul>
+    <li *ngFor="let m of interiorModules">
+      <div class="img-holder">
+        <img [src]="m.getImage()" alt="" (load)="m.loaded = true" (click)="logComposite(m)">
+        <app-spinner-loader [hidden]="m.loaded"></app-spinner-loader>
+      </div>
+      <h6>
+        {{ m.name }}
+      </h6>
+    </li>
+  </ul>
+
+  <ul>
+    <li *ngFor="let m of basePieces">
+      <div class="img-holder">
+        <img [src]="m.getImage()" alt="" (load)="m.loaded = true" (click)="logComposite(m)">
+        <app-spinner-loader [hidden]="m.loaded"></app-spinner-loader>
+      </div>
+      <h6>
+        {{ m.name }}
+      </h6>
+    </li>
+  </ul>
+
+
+  <ul>
+    <li *ngFor="let m of materials">
+      <div class="img-holder">
+        <img [src]="m.getImage()" alt="" (load)="m.loaded = true" (click)="logComposite(m)">
+        <app-spinner-loader [hidden]="m.loaded"></app-spinner-loader>
+      </div>
+      <h6>
+        {{ m.name }}
+      </h6>
+    </li>
+  </ul>
+
+  <!-- <ul>
+    <li *ngFor="let a of advanced">
+      <div class="img-holder">
+        <img [src]="a.getImage()" alt="" (load)="a.loaded = true" (click)="logComposite(a)">
+        <app-spinner-loader [hidden]="a.loaded"></app-spinner-loader>
+      </div>
+      <h6>
+        {{ a.name }}
+      </h6>
+    </li>
+  </ul>
+  <hr>
+  <ul>
+    <li *ngFor="let b of basic">
+      <div class="img-holder">
+        <img [src]="b.getImage()" alt="" (load)="b.loaded = true" (click)="logComposite(b)">
+        <app-spinner-loader [hidden]="b.loaded"></app-spinner-loader>
+      </div>
+      <h6>
+        {{ b.name }}
+      </h6>
+    </li>
+  </ul>
+  <hr>
+  <ul>
+    <li *ngFor="let r of raw">
+      <div class="img-holder">
+        <img [src]="r.getImage()" alt="" (load)="r.loaded = true" (click)="logComposite(r)">
+        <app-spinner-loader [hidden]="r.loaded"></app-spinner-loader>
+      </div>
+      <h6>
+        {{ r.name }}
+      </h6>
+    </li>
+  </ul> -->
+  <hr>
+
+  <pre>
+      <!-- {{ item | json }} -->
+  </pre>
+  <div id="r">
+    {{m}}
+  </div>
+
+</section>

@@ -1,20 +1,20 @@
-import { Component,
-  OnInit,
-  AfterViewInit,
-  AfterContentInit,
-  ComponentFactoryResolver,
-  ViewContainerRef,
-  ViewChild } from '@angular/core';
-import { DemoserviceService } from './demoservice.service'
-import { ImageComponent } from './image/image.component'
-// import { Observable } from 'rxjs/Rx';
+import {
+  Component,
+  OnInit
+} from '@angular/core';
+
+import { DemoserviceService } from './shared/services/demoservice.service';
+import { Mat } from './mat';
+// import 'rxjs/Rx';
+import { promise } from 'protractor';
+import { resolve } from 'url';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.sass']
+  styleUrls: ['./app.component.sass'],
 })
-export class AppComponent implements AfterViewInit, AfterContentInit {
+export class AppComponent implements OnInit {
   title = 'http test for wiki fandom';
 
   private loading: boolean = false;
@@ -22,90 +22,139 @@ export class AppComponent implements AfterViewInit, AfterContentInit {
   images: any[];
   public imageTitles: string[];
 
-  public data
+  public data;
   public dataString;
   public dataText;
 
-  @ViewChild('imgInsert', {
-    read: ViewContainerRef
-  }) imgInsert: ViewContainerRef;
+  // resources
+  raw;
+  basic;
+  advanced;
+  electronics;
+  materials;
 
-  matches;
-  result;
+  // components
+  basePieces;
+  interiorModules;
+
+  // mts / bom
+  selectedItems;
+  materialsInBom;
+
   constructor(
-    private demoService: DemoserviceService,
-    private cFR: ComponentFactoryResolver,
-    private vCR: ViewContainerRef
-  ) {}
-
-  ngAfterViewInit(){
-  }
-
-  ngAfterContentInit() {
-  }
+    private demoService: DemoserviceService
+  ) { }
 
   ngOnInit() {
-    // this.getContent('Habitat Builder')
-      // .then(
-      //   () => this.getImage(this.imageTitles)
-      // );
-    // this.getContent('Habitat Builder')
+    this.demoService.fetchAdvanced();
+    this.demoService.fetchBasic();
+    this.demoService.fetchRaw();
+    this.demoService.fetchElectronics();
+
+    this.demoService.materials.subscribe(v => {
+      if (!v.includes(null)) {
+        this.materials = v;
+      }
+    });
+
+    this.demoService.fetchBasePieces();
+    this.demoService.basePieces.subscribe(c => {
+      if (c) {
+        this.basePieces = c;
+      }
+    });
+
+    this.demoService.fetchInteriorModules();
+    this.demoService.interiorModules.subscribe(m => {
+      if (m) {
+        this.interiorModules = m;
+      }
+    });
+
+    this.demoService.itemSelectedObservable.subscribe(mat => {
+      this.selectedItems = mat;
+    });
+
+    this.demoService.materialsInBOMObservable.subscribe(m => {
+      this.materialsInBom = m;
+    });
+
   }
 
-  getContent() {
-    // let promise = new Promise((resolve, reject) => {
-    //   this.demoService.getPageContent(title).subscribe(
-    //     data => {
-    //       this.data = data;
-    //       this.imageTitles = this.data.parse.images;
-    //     },
-    //     err => reject(),
-    //     () => resolve()
-    //   );
-    // });
-    // return promise;
-    this.loading = true;
-    this.demoService.getPage('Habitat Builder').then( () => this.loading = false);
+  updateMaterial(m: Mat) {
+    /* update material after picking it */
+    const updatePromise = new Promise((res, rej) => {
+
+      if (m.mats.length > 0) {
+        res('has mats');
+      } else {
+        if (m.type !== 'Raw Materials') {
+          this.demoService.findComposites(this.demoService.makeId(m.type), m.name).then(x => {
+            const o = this.demoService.searChMaterialsArray(x, this.materials);
+            o.forEach(oMat => {
+              this.updateMaterial(oMat); // updates existing mats
+            });
+
+            /*fixes*/
+            if (m.name === 'Room') {
+              o.find(oX => {
+                if (oX.name === 'Titanium') {
+                  oX.count = 6;
+                  return oX;
+                }
+              });
+            } else if (m.name === 'Scanner Room') {
+              o.find(oX => {
+                if (oX.name === 'Titanium') {
+                  oX.count = 5;
+                  return oX;
+                }
+              });
+            } else if (m.name === 'Thermal Plant') {
+              o.find(oX => {
+                if (oX.name === 'Titanium') {
+                  oX.count = 5;
+                  return oX;
+                }
+              });
+            } else if (m.name === 'Alien Containment') {
+              o.find(oX => {
+                if (oX.name === 'Glass') {
+                  oX.count = 5;
+                  return oX;
+                }
+              });
+            } else if (m.name === 'Titanium Ingot') {
+              o.find(oX => {
+                if (oX.name === 'Titanium') {
+                  oX.count = 10;
+                  return oX;
+                }
+              });
+            }
+
+            m.mats = o;
+          }).then(x => {
+            res(m);
+          });
+        } else {
+          // console.log('it\'s raw');
+        }
+      }
+    });
+    return updatePromise;
   }
 
-  getImages() {
-
+  logComposite(m: Mat) {
+    this.updateMaterial(m).then(x => {
+      this.demoService.addToSelected(m);
+    });
   }
 
-  // getImage(titles) {
-  //   titles.forEach(t => {
-  //     this.demoService.getPageImages(t).subscribe(
-  //       data => {
-  //         let partUrl = JSON.stringify(data).split(',')
-  //         partUrl.forEach(v => {
-  //           let cleanUrl = this.cleanUrl(v)
-  //           if(cleanUrl) {
-  //             this.createImgComponent(cleanUrl)
-  //           }
-  //         })
-  //       },
-  //       err => console.log('error'),
-  //       () => console.log('success')
-  //     )
-  //   })
-  //
-  // }
-
-  // cleanUrl(url) {
-  //   if(url.indexOf('"imageinfo":[{"url":"') !== -1) {
-  //     let u = url.replace('"imageinfo":[{"url":"', '').slice(0,-1)
-  //     return u
-  //   }
-  // }
-
-  // createImgComponent(url) {
-  //   let componentFactory = this.cFR.resolveComponentFactory(ImageComponent)
-  //   let dc = <ImageComponent>this.imgInsert.createComponent(componentFactory).instance;
-  //   dc.prop = url
-  // }
-
-  log(l) {
-    console.log('%c' + l, 'background: blue; color: white');
+  removeFromSelected(m) {
+    this.demoService.removeFromSelected(m);
   }
 
 }
+
+
